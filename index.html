@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b13">
+<meta name="description" content="An interactive, animated Marvel Cinematic Universe story guide from Captain America: The First Avenger to Avengers: Doomsday.">
+<title>Marvel: The Road to Avengers — Doomsday</title>
+<style>
+:root{
+ --bg:#070a12;--bg2:#0d1321;--panel:rgba(18,27,44,.82);--panel2:#111c2e;
+ --ink:#f4f6fb;--muted:#a8b3c6;--line:rgba(190,207,235,.16);
+ --red:#f04452;--gold:#f3c76a;--cyan:#70d7e8;--green:#8de0b0;--purple:#b69aff;
+ --shadow:0 22px 70px rgba(0,0,0,.42);--radius:22px;--max:1180px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{margin:0;background:radial-gradient(ellipse at 20% -10%,#1b2a46 0,transparent 42%),radial-gradient(ellipse at 100% 35%,#24162e 0,transparent 34%),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;overflow-x:hidden}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+button,input{font:inherit}
+button{cursor:pointer}
+::selection{background:var(--red);color:white}
+#progress{position:fixed;z-index:1000;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--red),var(--gold),var(--cyan));box-shadow:0 0 14px var(--red)}
+#stars{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#dceaff;opacity:.45;animation:twinkle 3s infinite ease-in-out}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.85;transform:scale(1.4)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-13px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,68,82,.1),0 0 34px rgba(240,68,82,.14)}50%{box-shadow:0 0 0 13px rgba(240,68,82,0),0 0 55px rgba(240,68,82,.28)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scan{0%{transform:translateY(-110%)}100%{transform:translateY(420%)}}
+@keyframes reveal{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes portal{0%{transform:rotate(0) scale(.96);filter:hue-rotate(0)}100%{transform:rotate(360deg) scale(1.04);filter:hue-rotate(40deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.wrap{width:min(var(--max),calc(100% - 40px));margin:auto}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(7,10,18,.82);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav{height:66px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.08em;font-size:12px}
+.brandmark{width:34px;height:34px;border:2px solid var(--red);display:grid;place-items:center;transform:rotate(45deg);border-radius:9px;box-shadow:0 0 20px #f0445244}
+.brandmark span{transform:rotate(-45deg);font-weight:1000;color:var(--red);font-size:15px}
+.navlinks{display:flex;gap:17px;align-items:center;font-size:12px;color:var(--muted)}
+.navlinks a{color:var(--muted)}.navlinks a:hover{color:white}
+.menuBtn{display:none;background:transparent;color:white;border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.hero{min-height:650px;display:grid;grid-template-columns:1.12fr .88fr;align-items:center;gap:30px;padding:76px 0 70px;position:relative}
+.eyebrow{display:inline-flex;gap:9px;align-items:center;color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+.eyebrow:before{content:"";width:25px;height:2px;background:var(--gold)}
+h1{font-size:clamp(48px,7.5vw,92px);line-height:.91;letter-spacing:-.065em;margin:20px 0 22px;font-weight:1000}
+h1 .line2{display:block;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.82);text-shadow:0 0 32px #f0445233}
+h1 .doom{color:var(--red);text-shadow:0 0 35px #f0445270}
+.hero p{max-width:640px;color:#c1cada;font-size:16px}
+.heroActions{display:flex;flex-wrap:wrap;gap:12px;margin-top:27px}
+.btn{border:1px solid var(--line);padding:12px 17px;border-radius:999px;color:white;background:#ffffff09;font-weight:800;font-size:12px;letter-spacing:.04em;transition:.25s}
+.btn.primary{background:linear-gradient(110deg,#e93649,#a71f35);border-color:transparent;box-shadow:0 12px 32px #e9364933}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0007;text-decoration:none}
+.heroVisual{min-height:440px;position:relative;display:grid;place-items:center;isolation:isolate}
+.portal{width:min(330px,66vw);aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle,transparent 40%,#8b3b9b20 44%,transparent 47%),conic-gradient(from 20deg,transparent,#8a63ff,#55c9e8,transparent,#f04452,transparent,#8a63ff);filter:blur(.2px);animation:portal 24s linear infinite}
+.portal:before,.portal:after{content:"";position:absolute;inset:8%;border:2px solid #9a8aff77;border-radius:50%;box-shadow:0 0 35px #8668ff66,inset 0 0 35px #8668ff55}
+.portal:after{inset:19%;border-color:#6dd9ef88;animation:spin 16s linear infinite reverse}
+.core{position:absolute;width:180px;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#f3c76a 0,#e74b56 14%,#54244d 44%,#12182c 72%,transparent 74%);box-shadow:0 0 80px #ef526688;animation:float 5s ease-in-out infinite}
+.heroVisual:before{content:'';position:absolute;inset:5% -10% 0 5%;z-index:-1;background:linear-gradient(90deg,transparent,#070a12aa),url('https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_8_05bacfcb.jpeg?region=0%2C0%2C1300%2C730') center/cover;border-radius:26px;opacity:.42;filter:saturate(.9);mask-image:linear-gradient(90deg,transparent 0%,#000 25%,#000 78%,transparent 100%)}
+.heroLabel{position:absolute;bottom:8%;left:4%;background:#0b1220cc;border:1px solid var(--line);padding:13px 16px;border-radius:14px;backdrop-filter:blur(12px);font-size:11px;color:var(--muted)}
+.heroLabel b{display:block;color:white;font-size:14px}
+.heroStamp{position:absolute;top:5%;right:1%;border:1px solid #f3c76a77;color:var(--gold);padding:9px 12px;border-radius:10px;font-size:10px;letter-spacing:.18em;transform:rotate(7deg)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:28px;max-width:620px}
+.stat{padding:13px;border:1px solid var(--line);border-radius:14px;background:#ffffff06}
+.stat strong{display:block;font-size:23px;color:white}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.section{padding:74px 0;border-top:1px solid var(--line)}
+.sectionHead{display:flex;justify-content:space-between;gap:25px;align-items:end;margin-bottom:28px}
+.kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);font-weight:900}
+h2{font-size:clamp(28px,4vw,44px);letter-spacing:-.04em;line-height:1.05;margin:8px 0}
+.lead{color:var(--muted);max-width:690px;font-size:14px;margin:8px 0 0}
+.sectionNo{font-size:48px;font-weight:1000;color:#ffffff0c;line-height:1}
+.callout{border:1px solid #f3c76a55;background:linear-gradient(120deg,#f3c76a12,#f044520b);padding:18px 20px;border-radius:16px;color:#dbe2ef;font-size:13px;margin:20px 0}
+.callout strong{color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card{background:linear-gradient(145deg,#172338d9,#0d1422e8);border:1px solid var(--line);border-radius:var(--radius);padding:19px;position:relative;overflow:hidden;transition:transform .28s,border-color .28s,box-shadow .28s}
+.card:hover{transform:translateY(-6px);border-color:#f0445266;box-shadow:var(--shadow)}
+.card:after{content:"";position:absolute;top:0;left:-100%;height:1px;width:100%;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:left .7s}
+.card:hover:after{left:100%}
+.card .num{font-size:10px;color:var(--gold);letter-spacing:.18em;font-weight:900}
+.card h3{font-size:17px;margin:7px 0 5px;line-height:1.25}
+.card p{font-size:12px;color:var(--muted);margin:0}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:4px 8px;font-size:9px;letter-spacing:.08em;color:var(--cyan);margin:10px 5px 0 0;text-transform:uppercase}
+.timeline{position:relative;display:grid;gap:14px}
+.timeline:before{content:"";position:absolute;left:23px;top:12px;bottom:12px;width:2px;background:linear-gradient(var(--red),var(--gold),var(--cyan),var(--purple));opacity:.6}
+.event{display:grid;grid-template-columns:48px 1fr;gap:14px;position:relative}
+.dot{z-index:1;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#111b2c;border:1px solid #f0445288;color:var(--gold);font-weight:900;box-shadow:0 0 20px #f0445222}
+.eventBody{background:#111a2a;border:1px solid var(--line);border-radius:17px;padding:15px 17px}
+.eventBody h3{margin:0 0 3px;font-size:15px}.eventBody .source{font-size:10px;color:var(--cyan);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.eventBody p{font-size:12px;color:var(--muted);margin:8px 0 0}
+.eventBody details{margin-top:10px;border-top:1px solid var(--line);padding-top:9px}
+summary{cursor:pointer;color:#e9eef8;font-size:11px;font-weight:800}
+details p{margin-top:8px!important}
+.phasebar{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px}
+.phasebtn{padding:8px 12px;background:#ffffff08;border:1px solid var(--line);color:var(--muted);border-radius:99px;font-size:11px}
+.phasebtn.active{background:#f0445222;color:white;border-color:#f04452aa}
+.searchrow{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.searchrow input{flex:1;min-width:230px;background:#0e1727;border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:white;outline:none}
+.searchrow input:focus{border-color:var(--cyan)}
+.azgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.azitem{border:1px solid var(--line);background:#111a2a;border-radius:14px;padding:12px;min-height:118px}
+.azitem b{display:block;font-size:23px;color:var(--red);line-height:1}
+.azitem strong{display:block;font-size:12px;margin:6px 0 3px}
+.azitem small{color:var(--cyan);font-size:10px;display:block}
+.azitem p{font-size:11px;color:var(--muted);margin:6px 0 0}
+
+.characterGallery{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.artCard{height:270px;position:relative;overflow:hidden;border-radius:20px;border:1px solid #ffffff24;background:#111a2a;isolation:isolate;box-shadow:0 16px 45px #0006;transition:transform .35s,border-color .35s,box-shadow .35s}
+.artCard:hover{transform:translateY(-7px) scale(1.012);border-color:#f3c76a99;box-shadow:0 25px 60px #0009,0 0 30px #f0445230}
+.artCard img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s cubic-bezier(.2,.7,.2,1),filter .6s;filter:saturate(.9) brightness(.8)}
+.artCard:hover img{transform:scale(1.1);filter:saturate(1.18) brightness(1)}
+.artCard:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#050810f2 0%,#050810aa 35%,transparent 75%);z-index:0}
+.artCaption{position:absolute;z-index:2;left:17px;right:17px;bottom:16px;transition:transform .35s}
+.artCard:hover .artCaption{transform:translateY(-5px)}
+.artCaption span{font-size:9px;letter-spacing:.2em;color:var(--gold);font-weight:900}
+.artCaption h3{font-size:20px;margin:5px 0 2px;line-height:1.1}
+.artCaption p{font-size:11px;color:#c4ccda;margin:0}
+.artGlow{position:absolute;inset:-70%;z-index:1;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 65%,#f3c76a20 75%,transparent 85%);animation:spin 18s linear infinite;mix-blend-mode:screen;opacity:.3}
+.artDoom{border-color:#f0445277;animation:pulse 5s infinite}
+
+.castgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+.person{padding:15px;border-radius:15px;background:linear-gradient(150deg,#17263d,#0d1422);border:1px solid var(--line)}
+.person .sigil{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#f04452,#6a3a79);display:grid;place-items:center;font-size:18px;font-weight:900;margin-bottom:10px}
+.person h3{font-size:13px;margin:0 0 4px}.person p{font-size:10px;color:var(--muted);margin:0}
+.watchlist{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.watch{display:flex;gap:12px;align-items:flex-start;background:#111a2a;border:1px solid var(--line);border-radius:14px;padding:13px}
+.watch input{accent-color:var(--red);width:17px;height:17px;margin-top:3px}
+.watch strong{font-size:12px;display:block}.watch small{font-size:10px;color:var(--muted)}
+.progressBox{padding:17px;border:1px solid var(--line);border-radius:16px;background:#111a2a;margin-bottom:15px}
+.progressTrack{height:8px;background:#ffffff12;border-radius:99px;overflow:hidden;margin-top:10px}
+.progressFill{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:99px;transition:width .4s}
+.quiz{max-width:760px}
+.question{padding:18px;background:#111a2a;border:1px solid var(--line);border-radius:16px;margin:10px 0}
+.question h3{font-size:14px;margin:0 0 12px}
+.answer{display:block;width:100%;text-align:left;margin:6px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#ffffff06;color:#dce4f2;font-size:12px}
+.answer:hover{border-color:var(--cyan)}.answer.correct{border-color:var(--green);background:#8de0b012}.answer.wrong{border-color:var(--red);background:#f0445212}
+.result{font-weight:900;color:var(--gold);font-size:20px;margin-top:15px}
+.finalpanel{position:relative;overflow:hidden;border:1px solid #f0445266;border-radius:26px;padding:35px;background:linear-gradient(120deg,#271727,#101c30 65%,#18243b);box-shadow:var(--shadow)}
+.finalpanel:before{content:"";position:absolute;width:350px;height:350px;border:1px solid #f0445244;border-radius:50%;right:-80px;top:-180px;box-shadow:0 0 0 24px #f0445208,0 0 0 50px #f0445206}
+.finalpanel h2{font-size:clamp(32px,5vw,56px);max-width:700px}
+.finalpanel p{color:#c5cede;max-width:720px;font-size:13px}
+footer{padding:35px 0 55px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+.footercols{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s,transform .7s}.reveal.visible{opacity:1;transform:none}
+.smallnote{font-size:10px;color:var(--muted)}
+.backtop{position:fixed;bottom:20px;right:20px;border:1px solid var(--line);background:#101a2bcc;color:white;border-radius:50%;width:42px;height:42px;z-index:50;backdrop-filter:blur(10px)}
+@media(max-width:850px){.characterGallery{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr;min-height:auto;padding:65px 0 45px}.heroVisual{min-height:320px}.portal{width:270px}.core{width:130px}.grid{grid-template-columns:repeat(2,1fr)}.castgrid{grid-template-columns:repeat(3,1fr)}.azgrid{grid-template-columns:repeat(3,1fr)}.navlinks{display:none;position:absolute;top:66px;left:0;right:0;padding:18px 22px;background:#0a101d;flex-direction:column;align-items:flex-start;border-bottom:1px solid var(--line)}.navlinks.open{display:flex}.menuBtn{display:block}}
+@media(max-width:560px){.characterGallery{grid-template-columns:1fr}.artCard{height:235px}.wrap{width:min(100% - 28px,var(--max))}.hero{padding-top:50px}.heroVisual{min-height:270px}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.castgrid{grid-template-columns:repeat(2,1fr)}.azgrid{grid-template-columns:repeat(2,1fr)}.watchlist{grid-template-columns:1fr}.section{padding:55px 0}.sectionHead{align-items:flex-start}.sectionNo{font-size:32px}.finalpanel{padding:24px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div><div id="stars" aria-hidden="true"></div>
+<header class="topbar"><div class="wrap nav">
+ <a class="brand" href="#top"><span class="brandmark"><span>A</span></span><span>THE MCU STORY FILE</span></a>
+ <nav class="navlinks" id="navlinks"><a href="#saga">THE SAGA</a><a href="#timeline">TIMELINE</a><a href="#multiverse">MULTIVERSE</a><a href="#side-stories">SIDE STORIES</a><a href="#character-gallery">CHARACTERS</a><a href="#teams">TEAMS</a><a href="#az">A–Z</a><a href="#watch">WATCHLIST</a></nav>
+ <button class="menuBtn" id="menuBtn" aria-label="Open navigation">☰</button>
+</div></header>
+<main id="top">
+<section class="wrap hero">
+ <div>
+  <div class="eyebrow">A cinematic catch-up experience · 2008—2026</div>
+  <h1>THE ROAD TO<span class="line2">AVENGERS</span><span class="doom">DOOMSDAY</span></h1>
+  <p>From the first Iron Man suit to the Infinity Stones, from Endgame's sacrifice to the branching Multiverse. Your complete story map to understand the Marvel crossover — without watching every single project.</p>
+  <div class="heroActions"><a class="btn primary" href="#saga">▶ START THE STORY</a><a class="btn" href="#watch">⚡ QUICK WATCHLIST</a></div>
+  <div class="stats"><div class="stat"><strong>2008</strong><span>MCU begins</span></div><div class="stat"><strong>2019</strong><span>Endgame</span></div><div class="stat"><strong>3</strong><span>Universes*</span></div><div class="stat"><strong>18 DEC</strong><span>Doomsday 2026*</span></div></div>
+  <div class="smallnote">*Three-universe premise and release date from Disney's official film listing. Plot details remain under wraps.</div>
+ </div>
+ <div class="heroVisual"><div class="portal"></div><div class="core"></div><div class="heroStamp">MULTIVERSE<br>ALERT</div><div class="heroLabel"><b>INFINITY SAGA → MULTIVERSE SAGA</b>One universe. Countless timelines. One looming crisis.</div></div>
+</section>
+
+<section class="section" id="saga"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">01 / The big picture</div><h2>Two sagas. One connected story.</h2><p class="lead">The Infinity Saga builds the Avengers and ends with Thanos. The Multiverse Saga explores what happens when time branches and realities begin to overlap.</p></div><div class="sectionNo">01</div></div>
+ <div class="grid">
+  <article class="card reveal"><div class="num">PHASE 01 — 2008–2012</div><h3>THE HEROES AWAKEN</h3><p>Tony Stark becomes Iron Man. Thor and Captain America arrive. Nick Fury brings Earth's mightiest heroes together to stop Loki's invasion of New York.</p><span class="tag">AVENGERS ASSEMBLE</span></article>
+  <article class="card reveal"><div class="num">PHASE 02 — 2013–2015</div><h3>THE WORLD EXPANDS</h3><p>Cosmic threats grow. The Infinity Stones emerge. The Guardians form. Ultron is created, Vision is born and the Avengers' actions reshape the world.</p><span class="tag">INFINITY STONES</span></article>
+  <article class="card reveal"><div class="num">PHASE 03 — 2016–2019</div><h3>THE FALL & THE SNAP</h3><p>The Avengers split. Thanos collects all six Stones and erases half of all life. Five years later, the surviving heroes reverse the Snap — at a terrible cost.</p><span class="tag">ENDGAME</span></article>
+  <article class="card reveal"><div class="num">PHASE 04 — 2021–2022</div><h3>A WORLD AFTER THE BLIP</h3><p>New heroes rise. Sam accepts the shield. Wanda's grief reshapes reality. Loki's escape leads to the TVA and the branching Multiverse.</p><span class="tag">NEW GENERATION</span></article>
+  <article class="card reveal"><div class="num">PHASE 05 — 2023–2025</div><h3>REALITIES COLLIDE</h3><p>Incursions, variants and the TVA become central. Deadpool meets Wolverine. The Thunderbolts form a new team. The Fantastic Four arrive from another universe.</p><span class="tag">MULTIVERSE</span></article>
+  <article class="card reveal"><div class="num">THE NEXT CHAPTER — 2026</div><h3>DOOMSDAY APPROACHES</h3><p>Marvel's official synopsis says heroes from three distinct universes are placed on a deadly collision course against an existential threat.</p><span class="tag">DOCTOR DOOM</span></article>
+ </div>
+ <div class="callout"><strong>How to read this:</strong> Expand each timeline entry for the fuller story. Titles marked “core” are the most useful preparation. “Optional” entries add world-building but are not essential to understand the main Doomsday setup.</div>
+</div></section>
+
+<section class="section" id="timeline"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">02 / The complete journey</div><h2>From the first Avenger to Endgame</h2><p class="lead">The Infinity Saga, in chronological MCU story order (release years are shown on each entry). These are the foundations that make the later crossover matter.</p></div><div class="sectionNo">02</div></div>
+ <div class="phasebar"><button class="phasebtn active" data-phase="all">ALL</button><button class="phasebtn" data-phase="p1">PHASE 1</button><button class="phasebtn" data-phase="p2">PHASE 2</button><button class="phasebtn" data-phase="p3">PHASE 3</button><button class="phasebtn" data-phase="post">AFTER ENDGAME</button></div>
+ <div class="searchrow"><input id="timelineSearch" placeholder="Search a film, character or story element…" aria-label="Search timeline"><span class="smallnote" id="countLabel">Showing all story entries</span></div>
+ <div class="timeline" id="timelineList">
+  <div class="event" data-phase="p1" data-search="captain america first avenger steve rogers hydra tesseract"><div class="dot">01</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2011</div><h3>Captain America: The First Avenger</h3><p>During World War II, Steve Rogers volunteers for a super-soldier experiment and becomes Captain America. He fights HYDRA and Red Skull, who uses the Tesseract as a power source. Steve crashes a plane into the Arctic to stop a catastrophe and is frozen for decades.</p><details><summary>WHY IT MATTERS</summary><p>Steve becomes the moral centre of the Avengers. The Tesseract is later revealed to contain the Space Stone. HYDRA and the super-soldier programme echo through later stories.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p1" data-search="iron man tony stark arc reactor nick fury"><div class="dot">02</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2008</div><h3>Iron Man</h3><p>Weapons inventor Tony Stark is kidnapped and builds an armoured suit to escape. He returns home, shuts down Stark Industries' weapons division and defeats Obadiah Stane. Tony publicly reveals that he is Iron Man.</p><details><summary>WHY IT MATTERS</summary><p>The MCU begins with Tony's transformation. Nick Fury approaches him about the Avengers Initiative. Tony's genius, technology and sacrifice later define the Infinity Saga.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p1" data-search="incredible hulk bruce banner abomination ross"><div class="dot">03</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2008</div><h3>The Incredible Hulk</h3><p>Bruce Banner lives on the run while trying to control the transformation that turns him into the Hulk. Emil Blonsky becomes the Abomination. General Thaddeus Ross pursues Banner.</p><details><summary>WHY IT MATTERS</summary><p>Introduces Bruce Banner and Ross, who returns much later as a major political figure. Tony Stark's cameo connects the film to the shared universe.</p></details><span class="tag">OPTIONAL CONTEXT</span></div></div>
+  <div class="event" data-phase="p1" data-search="iron man 2 black widow natasha romanoff shield"><div class="dot">04</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2010</div><h3>Iron Man 2</h3><p>Tony struggles with the effects of the arc reactor and faces rival inventor Ivan Vanko. Natasha Romanoff is introduced as a S.H.I.E.L.D. agent. Tony studies his father Howard's research and discovers a new element.</p><details><summary>WHY IT MATTERS</summary><p>Natasha becomes a core Avenger. S.H.I.E.L.D. is revealed as the organisation helping assemble the team.</p></details><span class="tag">USEFUL</span></div></div>
+  <div class="event" data-phase="p1" data-search="thor asgard loki mjolnir nine realms"><div class="dot">05</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2011</div><h3>Thor</h3><p>Thor is banished to Earth after acting arrogantly and provoking a conflict. He learns humility and becomes worthy of Mjolnir again. Loki discovers painful truths about his origins and resents Thor's place in Asgard.</p><details><summary>WHY IT MATTERS</summary><p>Introduces Asgard, the Nine Realms and Loki — one of the most important characters in the Multiverse Saga.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p1" data-search="avengers 2012 loki chitauri new york tesseract"><div class="dot">06</div><div class="eventBody"><div class="source">PHASE 1 · FILM · 2012</div><h3>The Avengers</h3><p>Loki steals the Tesseract and opens a portal for the Chitauri to invade New York. Iron Man, Captain America, Thor, Hulk, Black Widow and Hawkeye are brought together by Nick Fury. They overcome their differences and stop the invasion.</p><details><summary>WHY IT MATTERS</summary><p>The original Avengers are formed. The Battle of New York changes the world and leaves Earth aware of cosmic threats.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p2" data-search="iron man 3 tony mandarin extremis"><div class="dot">07</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2013</div><h3>Iron Man 3</h3><p>Tony struggles with trauma after the Battle of New York and confronts the apparent Mandarin and Aldrich Killian's Extremis technology.</p><details><summary>WHY IT MATTERS</summary><p>Shows that the Avengers' victory came with psychological consequences, especially for Tony.</p></details><span class="tag">OPTIONAL CONTEXT</span></div></div>
+  <div class="event" data-phase="p2" data-search="thor dark world aether reality stone collector"><div class="dot">08</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2013</div><h3>Thor: The Dark World</h3><p>Thor battles Malekith, who seeks to use the Aether. The Aether is later identified as the Reality Stone and placed with the Collector.</p><details><summary>WHY IT MATTERS</summary><p>Important Infinity Stone lore. The film also deepens Thor and Loki's complicated relationship.</p></details><span class="tag">STONE LORE</span></div></div>
+  <div class="event" data-phase="p2" data-search="captain america winter soldier hydra bucky shield"><div class="dot">09</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2014</div><h3>Captain America: The Winter Soldier</h3><p>Steve discovers HYDRA has infiltrated S.H.I.E.L.D. His old friend Bucky Barnes is revealed to be the brainwashed Winter Soldier. Steve, Natasha and Sam Wilson expose the conspiracy.</p><details><summary>WHY IT MATTERS</summary><p>S.H.I.E.L.D. collapses. Bucky's past and Sam's bond with Steve lead into later Captain America and Thunderbolts stories.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p2" data-search="guardians galaxy power stone peter quill gamora rocket groot"><div class="dot">10</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2014</div><h3>Guardians of the Galaxy</h3><p>Peter Quill, Gamora, Drax, Rocket and Groot form a team while pursuing an Orb containing the Power Stone. They defeat Ronan and protect Xandar.</p><details><summary>WHY IT MATTERS</summary><p>Connects Earth to the wider cosmic universe and establishes the Power Stone and the Guardians' family bond.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p2" data-search="guardians galaxy vol 2 ego yondu celestial"><div class="dot">11</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2017</div><h3>Guardians of the Galaxy Vol. 2</h3><p>The Guardians discover Peter Quill's father is Ego, a powerful being who plans to spread himself across planets. Peter rejects him; Yondu sacrifices himself to save Peter.</p><details><summary>WHY IT MATTERS</summary><p>Completes important emotional backstory for the Guardians before Infinity War.</p></details><span class="tag">USEFUL</span></div></div>
+  <div class="event" data-phase="p2" data-search="avengers age of ultron wanda pietro vision mind stone sokovia"><div class="dot">12</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2015</div><h3>Avengers: Age of Ultron</h3><p>Tony and Bruce create an AI defence system that becomes Ultron. The Avengers stop him in Sokovia. Wanda and Pietro Maximoff enter the story, and Vision is created with the Mind Stone.</p><details><summary>WHY IT MATTERS</summary><p>Introduces Wanda, Vision and the Mind Stone. Sokovia's destruction later fuels government pressure on superheroes.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p2" data-search="ant man scott lang hank pym quantum realm"><div class="dot">13</div><div class="eventBody"><div class="source">PHASE 2 · FILM · 2015</div><h3>Ant-Man</h3><p>Scott Lang becomes Ant-Man with a suit designed by Hank Pym. Scott defeats Darren Cross and enters the Quantum Realm, then returns.</p><details><summary>WHY IT MATTERS</summary><p>The Quantum Realm becomes crucial to the time-travel plan in Endgame and to Kang's story.</p></details><span class="tag">CORE FOR ENDGAME</span></div></div>
+  <div class="event" data-phase="p3" data-search="civil war accords tony steve bucky spider man black panther"><div class="dot">14</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2016</div><h3>Captain America: Civil War</h3><p>After collateral damage from superhero missions, governments propose the Sokovia Accords. Tony supports oversight; Steve opposes it. Zemo reveals Bucky was responsible for Tony's parents' deaths while brainwashed. The Avengers fracture. T'Challa and Peter Parker enter the story.</p><details><summary>WHY IT MATTERS</summary><p>The Avengers are divided when Thanos arrives. Introduces Black Panther and Spider-Man to the MCU.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p3" data-search="doctor strange time stone dormammu mystic arts"><div class="dot">15</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2016</div><h3>Doctor Strange</h3><p>After a crash damages his hands, surgeon Stephen Strange discovers the mystic arts. He uses the Eye of Agamotto, which contains the Time Stone, to trap Dormammu in a time loop.</p><details><summary>WHY IT MATTERS</summary><p>Introduces the Sorcerer Supreme, magic and the Time Stone — all important to the later multiverse story.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p3" data-search="black panther wakanda killmonger vibranium t challa"><div class="dot">16</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2018</div><h3>Black Panther</h3><p>T'Challa becomes king of Wakanda and faces Erik Killmonger, who challenges the nation's isolation. T'Challa defeats him and decides Wakanda should share its knowledge and resources.</p><details><summary>WHY IT MATTERS</summary><p>Wakanda's vibranium technology and leaders become essential in the fight against Thanos.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p3" data-search="thor ragnarok hela asgard destruction hulk loki"><div class="dot">17</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2017</div><h3>Thor: Ragnarok</h3><p>Thor discovers Hela, his sister, has returned to claim Asgard. Asgard is destroyed, but its people survive. Thor accepts that Asgard is its people, not a place. Loki appears to reconcile with him.</p><details><summary>WHY IT MATTERS</summary><p>The surviving Asgardians become refugees. Loki still has the Tesseract, leading directly into Infinity War.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p3" data-search="avengers infinity war thanos snap six infinity stones"><div class="dot">18</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2018</div><h3>Avengers: Infinity War</h3><p>Thanos collects all six Infinity Stones — Space, Mind, Reality, Power, Time and Soul — to erase half of all life. The Avengers and Guardians try to stop him, but Thanos completes the Snap. Many heroes disappear.</p><details><summary>WHY IT MATTERS</summary><p>The Snap creates the five-year Blip. It is the defining catastrophe of the Infinity Saga.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event" data-phase="p3" data-search="avengers endgame time travel quantum realm tony sacrifice steve shield"><div class="dot">19</div><div class="eventBody"><div class="source">PHASE 3 · FILM · 2019</div><h3>Avengers: Endgame</h3><p>Five years after the Snap, the surviving heroes use the Quantum Realm to travel through time and collect the Stones. The 2014 Thanos attacks the present. Tony uses the Stones to erase Thanos and his army, sacrificing himself. Natasha dies obtaining the Soul Stone. Steve returns the Stones and chooses a life with Peggy, later passing the shield to Sam.</p><details><summary>THE NEW STARTING POINT</summary><p>Tony and Natasha are dead. Steve has retired. Sam has the shield. Thor leaves with the Guardians. Bruce is Professor Hulk. The Blip is reversed, but the world has changed. This is where the post-Endgame story begins.</p></details><span class="tag">ESSENTIAL</span></div></div>
+ </div>
+</div></section>
+
+<section class="section" id="multiverse"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">03 / The new era</div><h2>After Endgame: the Multiverse opens</h2><p class="lead">The world is recovering from the Blip while new heroes, magical threats and alternate realities emerge.</p></div><div class="sectionNo">03</div></div>
+ <div class="timeline">
+  <div class="event"><div class="dot">20</div><div class="eventBody"><div class="source">FILM · 2019</div><h3>Spider-Man: Far From Home</h3><p>Peter Parker struggles with Tony Stark's legacy. Mysterio manipulates him with illusions, then exposes Peter's identity to the world.</p><details><summary>REMEMBER</summary><p>Tony's absence leaves a leadership vacuum. Peter's life becomes public and unstable.</p></details><span class="tag">BRIDGE</span></div></div>
+  <div class="event"><div class="dot">21</div><div class="eventBody"><div class="source">SERIES · 2021</div><h3>WandaVision</h3><p>Wanda creates a reality bubble around Westview and constructs an idealised family with Vision and twins Billy and Tommy. The illusion collapses; Wanda becomes the Scarlet Witch and studies the Darkhold.</p><details><summary>REMEMBER</summary><p>Wanda's reality-altering magic, Billy and Tommy, and the Darkhold lead into Multiverse of Madness and Agatha All Along.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event"><div class="dot">22</div><div class="eventBody"><div class="source">SERIES · 2021–2023</div><h3>Loki — Seasons 1 & 2</h3><p>The 2012 Loki who escaped with the Tesseract is arrested by the Time Variance Authority (TVA). He meets Sylvie and learns that He Who Remains controlled the Sacred Timeline to prevent a multiversal war. Sylvie kills him, branching timelines multiply, and Loki ultimately takes responsibility for holding the branches together.</p><details><summary>REMEMBER</summary><p>This is the Multiverse Saga's foundation. TVA = timeline authority; variants = alternate versions; Loki's fate = the branching timelines are held together.</p></details><span class="tag">TOP PRIORITY</span></div></div>
+  <div class="event"><div class="dot">23</div><div class="eventBody"><div class="source">SERIES · 2021</div><h3>The Falcon and the Winter Soldier</h3><p>Sam initially gives up Steve's shield, but ultimately accepts the responsibility and becomes Captain America. Bucky confronts his past. John Walker becomes the government-backed Captain America for a time and later operates as US Agent.</p><details><summary>REMEMBER</summary><p>Sam is the new Captain America. Bucky and Walker later join the Thunderbolts* team.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event"><div class="dot">24</div><div class="eventBody"><div class="source">FILM · 2021</div><h3>Shang-Chi and the Legend of the Ten Rings</h3><p>Shang-Chi confronts his father Wenwu and inherits the powerful Ten Rings. Wong, Bruce Banner and Carol Danvers later investigate the Rings and discover an unexplained signal.</p><details><summary>REMEMBER</summary><p>Shang-Chi is an announced Doomsday cast member. The Rings' origin remains an open mystery.</p></details><span class="tag">USEFUL</span></div></div>
+  <div class="event"><div class="dot">25</div><div class="eventBody"><div class="source">FILM · 2021</div><h3>Eternals</h3><p>Ancient beings sent by the Celestials discover that Earth was being prepared for the birth of a new Celestial. Some Eternals rebel to save humanity.</p><details><summary>REMEMBER</summary><p>Expands the cosmic scale of the MCU, but is not a core prerequisite for Doomsday's known premise.</p></details><span class="tag">OPTIONAL COSMIC LORE</span></div></div>
+  <div class="event"><div class="dot">26</div><div class="eventBody"><div class="source">SERIES · 2021</div><h3>Hawkeye</h3><p>Clint Barton meets Kate Bishop, a young archer who becomes his protégé. Yelena Belova arrives believing Clint caused Natasha's death, then learns the truth.</p><details><summary>REMEMBER</summary><p>Introduces Kate's next-generation hero path and brings Yelena into the post-Black Widow story.</p></details><span class="tag">USEFUL</span></div></div>
+  <div class="event"><div class="dot">27</div><div class="eventBody"><div class="source">FILM · 2021</div><h3>Spider-Man: No Way Home</h3><p>Peter asks Doctor Strange to make the world forget his identity. The spell goes wrong and draws people from other universes who know Peter Parker is Spider-Man. Peter chooses a final spell that makes everyone forget him, including MJ and Ned.</p><details><summary>REMEMBER</summary><p>Alternate-universe characters can cross into the MCU. Peter is now alone and unknown to his closest friends.</p></details><span class="tag">CORE</span></div></div>
+  <div class="event"><div class="dot">28</div><div class="eventBody"><div class="source">FILM · 2022</div><h3>Doctor Strange in the Multiverse of Madness</h3><p>America Chavez can open portals between universes. Wanda, corrupted by the Darkhold, hunts her power to reach alternate versions of Billy and Tommy. Strange visits alternate realities, including one with the Illuminati. Wanda destroys the Darkhold's influence and seemingly sacrifices herself.</p><details><summary>REMEMBER</summary><p>An incursion is when universes collide and can destroy one another. America is a multiverse traveller. Wanda's fate is not fully closed.</p></details><span class="tag">TOP PRIORITY</span></div></div>
+  <div class="event"><div class="dot">29</div><div class="eventBody"><div class="source">FILM · 2022</div><h3>Black Panther: Wakanda Forever</h3><p>After T'Challa's death, Shuri eventually becomes the new Black Panther. Namor, ruler of the underwater nation Talokan, clashes with Wakanda over vibranium and outside threats. Shuri chooses a fragile peace.</p><details><summary>REMEMBER</summary><p>Shuri is Black Panther. Namor and Talokan are powerful forces. M'Baku is positioned to lead Wakanda.</p></details><span class="tag">CORE TEAM CONTEXT</span></div></div>
+  <div class="event"><div class="dot">30</div><div class="eventBody"><div class="source">FILM · 2023</div><h3>Ant-Man and the Wasp: Quantumania</h3><p>Scott's family is pulled into the Quantum Realm and encounters Kang the Conqueror, an exiled time-travelling warlord. They stop his immediate escape; post-credit scenes show a gathering of Kang variants.</p><details><summary>REMEMBER</summary><p>Kang was once positioned as the next major saga villain. Doctor Doom is now the announced central Doomsday antagonist; do not assume Kang is the film's villain.</p></details><span class="tag">CONTEXT</span></div></div>
+  <div class="event"><div class="dot">31</div><div class="eventBody"><div class="source">FILM · 2023</div><h3>Guardians of the Galaxy Vol. 3</h3><p>The Guardians save Rocket and confront the High Evolutionary, who experimented on him. Peter returns to Earth, and Rocket leads a new Guardians team.</p><details><summary>REMEMBER</summary><p>Completes the Guardians' emotional arc. Useful, but not essential to the known Doomsday setup.</p></details><span class="tag">OPTIONAL</span></div></div>
+  <div class="event"><div class="dot">32</div><div class="eventBody"><div class="source">FILM · 2024</div><h3>Deadpool & Wolverine</h3><p>Deadpool learns his universe is at risk and becomes entangled with the TVA. He teams up with a Wolverine variant and encounters characters from earlier Fox Marvel films. They face Cassandra Nova, whose power threatens realities.</p><details><summary>REMEMBER</summary><p>It is the most useful recent bridge to the legacy X-Men universe and demonstrates the TVA's reach beyond the main MCU.</p></details><span class="tag">TOP PRIORITY</span></div></div>
+  <div class="event"><div class="dot">33</div><div class="eventBody"><div class="source">SERIES · 2024</div><h3>Agatha All Along</h3><p>Agatha returns after WandaVision and assembles a coven to walk the Witches' Road. The mysterious teen is revealed as Billy Maximoff, whose soul has found a new body.</p><details><summary>REMEMBER</summary><p>Billy exists and searches for his twin Tommy. Wanda's family story continues.</p></details><span class="tag">MAGIC THREAD</span></div></div>
+  <div class="event"><div class="dot">34</div><div class="eventBody"><div class="source">FILM · 2025</div><h3>Captain America: Brave New World</h3><p>Sam Wilson faces a political crisis involving President Thaddeus Ross, a conspiracy and a powerful new transformation: Red Hulk. Sam chooses to save Ross rather than simply defeat him.</p><details><summary>REMEMBER</summary><p>Sam is firmly established as Captain America. Ross remains a major political figure.</p></details><span class="tag">USEFUL</span></div></div>
+  <div class="event"><div class="dot">35</div><div class="eventBody"><div class="source">FILM · 2025</div><h3>Thunderbolts*</h3><p>Yelena, Bucky, Red Guardian, John Walker, Ghost and Taskmaster are drawn into a covert mission that turns out to be a trap. They encounter Bob Reynolds, who becomes Sentry. His darker persona, the Void, threatens a city. The team works together to save him and is publicly associated with the name New Avengers.</p><details><summary>REMEMBER</summary><p>The New Avengers now exist as a team. Sentry is immensely powerful but vulnerable to the Void. Yelena, Bucky and Walker are key members.</p></details><span class="tag">TOP PRIORITY</span></div></div>
+  <div class="event"><div class="dot">36</div><div class="eventBody"><div class="source">FILM · 2025</div><h3>The Fantastic Four: First Steps</h3><p>In a retro-futuristic alternate universe, Reed Richards, Sue Storm, Johnny Storm and Ben Grimm face Galactus and his herald Silver Surfer. The team saves its world, and Reed and Sue's son Franklin is introduced.</p><details><summary>REMEMBER</summary><p>The Fantastic Four come from a distinct universe. Reed Richards is Doctor Doom's traditional rival in Marvel lore. The film's exact connection to Doomsday should be distinguished from comic-book theories.</p></details><span class="tag">TOP PRIORITY</span></div></div>
+  <div class="event"><div class="dot">37</div><div class="eventBody"><div class="source">FILM · 2026</div><h3>Spider-Man: Brand New Day</h3><p>Peter Parker continues as Spider-Man in a world that no longer remembers him. He fights crime full-time while his old friends move on without knowing who he is. A new threat forces a change in Peter.</p><details><summary>REMEMBER</summary><p>Updates Peter's post-No Way Home status. Treat its Doomsday connection as unconfirmed unless the film explicitly establishes one.</p></details><span class="tag">OPTIONAL FOR MULTIVERSE</span></div></div>
+  <div class="event"><div class="dot">38</div><div class="eventBody"><div class="source">SERIES · 2026</div><h3>VisionQuest</h3><p>Continues the Vision storyline beyond WandaVision and the White Vision thread, exploring Vision's identity and place in the world.</p><details><summary>REMEMBER</summary><p>Vision's story did not simply end with his death in Infinity War. This series closes or advances that thread; it is a character-context watch rather than a confirmed Doomsday prerequisite.</p></details><span class="tag">OPTIONAL CHARACTER THREAD</span></div></div>
+ </div>
+</div></section>
+
+
+<section class="section" id="side-stories"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">03B / Supporting story branches</div><h2>The side stories you should recognise</h2><p class="lead">These projects widen the MCU. Most are optional for Doomsday, but their key characters and events are useful to recognise.</p></div><div class="sectionNo">03B</div></div>
+ <div class="grid">
+  <article class="card"><div class="num">SERIES · 2022</div><h3>Moon Knight</h3><p>Steven Grant discovers he shares a body with mercenary Marc Spector. Their connection to the Egyptian god Khonshu brings the MCU into a supernatural corner.</p><span class="tag">OPTIONAL</span></article>
+  <article class="card"><div class="num">SERIES · 2022</div><h3>Ms. Marvel</h3><p>Kamala Khan discovers her powers and family history. She is a young hero whose story connects directly to The Marvels.</p><span class="tag">USEFUL</span></article>
+  <article class="card"><div class="num">FILM · 2023</div><h3>The Marvels</h3><p>Carol Danvers, Monica Rambeau and Kamala Khan become entangled through their powers. Monica ends up in an alternate universe and encounters Beast, an X-Men character.</p><span class="tag">MULTIVERSE BRIDGE</span></article>
+  <article class="card"><div class="num">SERIES · 2023</div><h3>Secret Invasion</h3><p>Nick Fury tries to stop a faction of Skrulls who have infiltrated human institutions. The story raises questions about identity, trust and alien infiltration.</p><span class="tag">OPTIONAL POLITICAL THREAD</span></article>
+  <article class="card"><div class="num">SERIES · 2024</div><h3>Echo</h3><p>Maya Lopez confronts her past and her connection to Wilson Fisk. It continues the street-level side of the MCU.</p><span class="tag">OPTIONAL</span></article>
+  <article class="card"><div class="num">SERIES · 2025–2026</div><h3>Daredevil: Born Again</h3><p>Matt Murdock returns as Daredevil while Wilson Fisk rises in New York politics. Important to the street-level MCU, but not a core multiverse prerequisite.</p><span class="tag">OPTIONAL</span></article>
+  <article class="card"><div class="num">FILM · 2023</div><h3>Guardians of the Galaxy Vol. 3</h3><p>Rocket's past is revealed and the Guardians face the High Evolutionary. Peter Quill returns to Earth while Rocket leads a new team.</p><span class="tag">COSMIC CHARACTER ARC</span></article>
+  <article class="card"><div class="num">FILM · 2021</div><h3>Black Widow</h3><p>Set after Civil War, Natasha confronts the Red Room and reunites with her chosen family. It introduces Yelena Belova, who becomes a key figure in Thunderbolts*.</p><span class="tag">YELENA BACKSTORY</span></article>
+ </div>
+ <div class="callout"><strong>Legacy X-Men primer:</strong> The X-Men films starring Patrick Stewart, Ian McKellen, Hugh Jackman, James Marsden and others belong to a separate earlier film continuity. You do not need to binge every Fox film to follow the MCU setup. Deadpool & Wolverine is the most useful recent bridge; the announced Doomsday cast confirms several legacy X-Men actors are returning, but individual roles and alliances should not be guessed.</div>
+</div></section>
+
+
+<section class="section" id="character-gallery"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">03C / Meet the faces</div><h2>Marvel characters — on screen</h2><p class="lead">Official Avengers: Doomsday gallery stills. Tap or hover over each frame for a cinematic reveal.</p></div><div class="sectionNo">03C</div></div>
+ <div class="characterGallery">
+  <article class="artCard artDoom"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengersdoomsday_dr_doom_6cc246af.jpeg?region=0%2C0%2C1300%2C730" alt="Doctor Doom in official Avengers Doomsday still" loading="lazy"><div class="artCaption"><span>THE COMING THREAT</span><h3>Doctor Doom</h3><p>Victor von Doom · Robert Downey Jr.</p></div><div class="artGlow"></div></article>
+  <article class="artCard"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_1_9269927f.jpeg?region=0%2C0%2C1300%2C730" alt="Avengers and Fantastic Four characters in Doomsday" loading="lazy"><div class="artCaption"><span>THE ALLIANCE</span><h3>Avengers × Fantastic Four</h3><p>New Avengers, Fantastic Four and allies</p></div><div class="artGlow"></div></article>
+  <article class="artCard"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_3_0ad5c6ab.jpeg?region=0%2C0%2C1300%2C730" alt="The Thing, Sue Storm and allies" loading="lazy"><div class="artCaption"><span>WORLDS CONNECT</span><h3>Fantastic Four & Wakanda</h3><p>Shuri · M'Baku · Sue Storm · The Thing</p></div><div class="artGlow"></div></article>
+  <article class="artCard"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_4_99d2c6b0.jpeg?region=0%2C0%2C1300%2C730" alt="Mystique from Avengers Doomsday" loading="lazy"><div class="artCaption"><span>LEGACY MUTANTS</span><h3>Mystique</h3><p>Rebecca Romijn · X-Men legacy</p></div><div class="artGlow"></div></article>
+  <article class="artCard"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_7_02a1ebff.jpeg?region=0%2C0%2C1300%2C730" alt="Doctor Doom facing a powerful lightning strike" loading="lazy"><div class="artCaption"><span>THE DOOMSDAY THREAT</span><h3>Doom vs. Thor</h3><p>A glimpse from the official gallery</p></div><div class="artGlow"></div></article>
+  <article class="artCard"><img src="https://lumiere-a.akamaihd.net/v1/images/g_disneymovies_avengers_doomsday_8_05bacfcb.jpeg?region=0%2C0%2C1300%2C730" alt="Steve Rogers and Thor in Avengers Doomsday" loading="lazy"><div class="artCaption"><span>THE RETURN</span><h3>Steve Rogers & Thor</h3><p>Chris Evans · Chris Hemsworth</p></div><div class="artGlow"></div></article>
+ </div>
+ <p class="smallnote" style="margin-top:13px">Artwork courtesy of Marvel Studios / Disney. Images are loaded from the official Disney image gallery, so an internet connection is required to display them.</p>
+</div></section>
+<section class="section" id="teams"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">04 / Know your players</div><h2>The teams entering the crossover</h2><p class="lead">A visual cheat sheet of the major groups and names to recognise. Cast inclusion does not automatically confirm a character's allegiance or screen time.</p></div><div class="sectionNo">04</div></div>
+ <div class="grid">
+  <article class="card reveal"><div class="num">TEAM 01</div><h3>THE MCU HEROES / NEW AVENGERS</h3><p><b>Sam Wilson:</b> Captain America. <b>Bucky Barnes:</b> former Winter Soldier. <b>Yelena Belova:</b> elite assassin. <b>John Walker:</b> US Agent. <b>Bob Reynolds:</b> Sentry / Void. Also know Thor, Ant-Man and Shang-Chi.</p><span class="tag">THUNDERBOLTS*</span><span class="tag">FALCON & WINTER SOLDIER</span></article>
+  <article class="card reveal"><div class="num">TEAM 02</div><h3>THE FANTASTIC FOUR</h3><p><b>Reed Richards:</b> elastic genius. <b>Sue Storm:</b> invisibility and force fields. <b>Johnny Storm:</b> Human Torch. <b>Ben Grimm:</b> the Thing. Their universe has a retro-futuristic 1960s feel.</p><span class="tag">FIRST STEPS</span></article>
+  <article class="card reveal"><div class="num">TEAM 03</div><h3>THE X-MEN / LEGACY MUTANTS</h3><p><b>Professor X:</b> telepathic mentor. <b>Magneto:</b> magnetic control. <b>Cyclops:</b> optic blasts. <b>Beast:</b> scientist and powerhouse. <b>Nightcrawler:</b> teleportation. <b>Mystique:</b> shapeshifting. <b>Gambit:</b> charged kinetic energy.</p><span class="tag">FOX X-MEN FILMS</span><span class="tag">DEADPOOL & WOLVERINE</span></article>
+  <article class="card reveal"><div class="num">TEAM 04</div><h3>WAKANDA & TALOKAN</h3><p><b>Shuri:</b> current Black Panther. <b>M'Baku:</b> Wakandan leader. <b>Okoye:</b> elite warrior. <b>Namor:</b> ruler of Talokan. These are powerful nations with advanced technology and military strength.</p><span class="tag">WAKANDA FOREVER</span></article>
+  <article class="card reveal"><div class="num">TEAM 05</div><h3>THE COSMIC / MYSTIC THREAD</h3><p><b>Loki:</b> holds together branching timelines. <b>Doctor Strange:</b> mystic protector. <b>America Chavez:</b> universe-jumping portals. <b>Monica Rambeau:</b> stranded in an alternate reality after The Marvels.</p><span class="tag">LOKI</span><span class="tag">MULTIVERSE OF MADNESS</span></article>
+  <article class="card reveal"><div class="num">TEAM 06</div><h3>THE DOOM FACTOR</h3><p><b>Victor von Doom:</b> ruler of Latveria in Marvel lore, brilliant scientist, master strategist and sorcerer. <b>Robert Downey Jr.</b> has been announced in the role. Doom is traditionally Reed Richards' greatest rival.</p><span class="tag">DOOMSDAY</span></article>
+ </div>
+ <div class="callout"><strong>Important:</strong> Doctor Doom is not confirmed to be Tony Stark resurrected or an evil Tony variant. Robert Downey Jr. is returning in a new role as Victor von Doom. Treat “Doom is Tony” as fan speculation, not established story.</div>
+</div></section>
+
+<section class="section" id="concepts"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">05 / Decode the multiverse</div><h2>12 concepts that make Doomsday easier</h2><p class="lead">If these terms make sense, the crossover language will be much easier to follow.</p></div><div class="sectionNo">05</div></div>
+ <div class="grid">
+  <article class="card"><div class="num">01</div><h3>Timeline</h3><p>A sequence of events. A changed event can create a branching path.</p><span class="tag">LOKI</span></article>
+  <article class="card"><div class="num">02</div><h3>Variant</h3><p>A different version of a person from another timeline or reality.</p><span class="tag">LOKI · NO WAY HOME</span></article>
+  <article class="card"><div class="num">03</div><h3>TVA</h3><p>Time Variance Authority: the organisation that monitors and manages timelines.</p><span class="tag">LOKI</span></article>
+  <article class="card"><div class="num">04</div><h3>Sacred Timeline</h3><p>The controlled timeline maintained under He Who Remains before his death.</p><span class="tag">LOKI S1</span></article>
+  <article class="card"><div class="num">05</div><h3>Incursion</h3><p>A collision between universes that can destroy one or both realities.</p><span class="tag">MULTIVERSE OF MADNESS</span></article>
+  <article class="card"><div class="num">06</div><h3>Quantum Realm</h3><p>A subatomic dimension with unusual properties of time and space.</p><span class="tag">ANT-MAN · ENDGAME</span></article>
+  <article class="card"><div class="num">07</div><h3>Darkhold</h3><p>A dangerous book of dark magic that corrupts those who use it.</p><span class="tag">WANDAVISION</span></article>
+  <article class="card"><div class="num">08</div><h3>Celestial</h3><p>An ancient cosmic being involved in the creation and development of life.</p><span class="tag">ETERNALS</span></article>
+  <article class="card"><div class="num">09</div><h3>Infinity Stones</h3><p>Six cosmic objects representing fundamental aspects of existence.</p><span class="tag">INFINITY SAGA</span></article>
+  <article class="card"><div class="num">10</div><h3>Anchor being</h3><p>A person described in Deadpool & Wolverine as vital to a universe's stability.</p><span class="tag">DEADPOOL & WOLVERINE</span></article>
+  <article class="card"><div class="num">11</div><h3>Ten Rings</h3><p>Ancient powerful weapons with an unexplained signal and origin.</p><span class="tag">SHANG-CHI</span></article>
+  <article class="card"><div class="num">12</div><h3>Void</h3><p>Sentry's destructive dark persona, capable of immense devastation.</p><span class="tag">THUNDERBOLTS*</span></article>
+ </div>
+</div></section>
+
+<section class="section" id="az"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">06 / Fast memory map</div><h2>The A–Z Doomsday storyboard</h2><p class="lead">A quick alphabetical index: what the name means, where it comes from and why to remember it.</p></div><div class="sectionNo">06</div></div>
+ <div class="searchrow"><input id="azSearch" placeholder="Find a letter, character or movie…" aria-label="Search A to Z"><span class="smallnote">26 quick notes</span></div>
+ <div class="azgrid" id="azGrid">
+  <div class="azitem"><b>A</b><strong>Avengers</strong><small>The Avengers (2012)</small><p>The original team assembles to stop Loki.</p></div>
+  <div class="azitem"><b>B</b><strong>Bucky Barnes</strong><small>Winter Soldier · Thunderbolts*</small><p>Steve's friend, brainwashed assassin, later New Avenger.</p></div>
+  <div class="azitem"><b>C</b><strong>Captain America</strong><small>First Avenger · Falcon & Winter Soldier</small><p>Steve passes the shield to Sam Wilson.</p></div>
+  <div class="azitem"><b>D</b><strong>Doctor Doom</strong><small>Doomsday · Marvel lore</small><p>Victor von Doom, played by Robert Downey Jr.</p></div>
+  <div class="azitem"><b>E</b><strong>Eternals</strong><small>Eternals (2021)</small><p>Ancient beings and Celestial cosmic history.</p></div>
+  <div class="azitem"><b>F</b><strong>Fantastic Four</strong><small>First Steps (2025)</small><p>Reed, Sue, Johnny and Ben from another universe.</p></div>
+  <div class="azitem"><b>G</b><strong>Galactus</strong><small>First Steps (2025)</small><p>Cosmic entity that consumes planets.</p></div>
+  <div class="azitem"><b>H</b><strong>He Who Remains</strong><small>Loki Season 1</small><p>Controlled the Sacred Timeline.</p></div>
+  <div class="azitem"><b>I</b><strong>Incursion</strong><small>Multiverse of Madness</small><p>Two universes collide, threatening both.</p></div>
+  <div class="azitem"><b>J</b><strong>John Walker</strong><small>Falcon & Winter Soldier · Thunderbolts*</small><p>Former government Captain America; US Agent.</p></div>
+  <div class="azitem"><b>K</b><strong>Kang</strong><small>Loki · Quantumania</small><p>Time-travelling multiversal conqueror; earlier saga threat.</p></div>
+  <div class="azitem"><b>L</b><strong>Loki</strong><small>Loki Seasons 1–2</small><p>Holds together the branching timelines.</p></div>
+  <div class="azitem"><b>M</b><strong>Magneto</strong><small>X-Men films</small><p>Powerful mutant who controls magnetic fields.</p></div>
+  <div class="azitem"><b>N</b><strong>Namor</strong><small>Wakanda Forever</small><p>Ruler of the underwater nation Talokan.</p></div>
+  <div class="azitem"><b>O</b><strong>Other universes</strong><small>No Way Home · Multiverse of Madness</small><p>Alternate realities hold different versions of people.</p></div>
+  <div class="azitem"><b>P</b><strong>Professor X</strong><small>X-Men films</small><p>Telepath and mentor of the X-Men.</p></div>
+  <div class="azitem"><b>Q</b><strong>Quantum Realm</strong><small>Ant-Man · Endgame</small><p>Subatomic realm key to Endgame time travel.</p></div>
+  <div class="azitem"><b>R</b><strong>Reed Richards</strong><small>Fantastic Four: First Steps</small><p>Mr. Fantastic; Doom's traditional rival.</p></div>
+  <div class="azitem"><b>S</b><strong>Scarlet Witch</strong><small>WandaVision · Multiverse of Madness</small><p>Wanda's reality-altering magic is immense.</p></div>
+  <div class="azitem"><b>T</b><strong>TVA</strong><small>Loki · Deadpool & Wolverine</small><p>Organisation that monitors timelines.</p></div>
+  <div class="azitem"><b>U</b><strong>Universe</strong><small>Multiverse of Madness</small><p>A complete reality; universes can collide.</p></div>
+  <div class="azitem"><b>V</b><strong>Void / Sentry</strong><small>Thunderbolts*</small><p>Powerful hero with a destructive alter ego.</p></div>
+  <div class="azitem"><b>W</b><strong>Wakanda</strong><small>Black Panther films</small><p>Shuri is the new Black Panther; Namor is a major power.</p></div>
+  <div class="azitem"><b>X</b><strong>X-Men</strong><small>X-Men films · Deadpool & Wolverine</small><p>Mutant heroes from the legacy film universe.</p></div>
+  <div class="azitem"><b>Y</b><strong>Yelena Belova</strong><small>Black Widow · Hawkeye · Thunderbolts*</small><p>Elite assassin and New Avengers member.</p></div>
+  <div class="azitem"><b>Z</b><strong>Zero-hour stakes</strong><small>Avengers: Doomsday</small><p>Existential threat; exact plot remains unrevealed.</p></div>
+ </div>
+</div></section>
+
+<section class="section" id="watch"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">07 / Your time-saving plan</div><h2>The essential watchlist</h2><p class="lead">You do not need to watch everything. Start with these titles for the clearest route into Doomsday.</p></div><div class="sectionNo">07</div></div>
+ <div class="progressBox"><strong id="watchProgressText">0 of 10 completed</strong><span class="smallnote"> Tick the titles as you watch or recap them. Your progress is saved in this browser.</span><div class="progressTrack"><div class="progressFill" id="watchProgress"></div></div></div>
+ <div class="watchlist" id="watchlist">
+  <label class="watch"><input type="checkbox"><span><strong>1. Loki — Seasons 1 & 2</strong><small>TVA, He Who Remains, branching timelines and Loki's final role. Highest priority.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>2. Doctor Strange in the Multiverse of Madness</strong><small>Incursions, Wanda, America Chavez and alternate realities.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>3. Spider-Man: No Way Home</strong><small>Alternate-universe visitors and the multiverse spell.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>4. Deadpool & Wolverine</strong><small>TVA and the legacy Fox X-Men universe.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>5. Thunderbolts*</strong><small>The New Avengers and Sentry / Void.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>6. The Fantastic Four: First Steps</strong><small>Meet Reed Richards and the Fantastic Four's universe.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>7. Black Panther: Wakanda Forever</strong><small>Shuri, Namor and Talokan.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>8. WandaVision</strong><small>Wanda's transformation and the Billy / Tommy thread.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>9. The Falcon and the Winter Soldier</strong><small>Sam becomes Captain America; Bucky and Walker setup.</small></span></label>
+  <label class="watch"><input type="checkbox"><span><strong>10. Infinity War + Endgame</strong><small>Refresh Thanos, the Stones, the Snap and the original heroes.</small></span></label>
+ </div>
+ <div class="callout"><strong>Weekend shortcut:</strong> Day 1 — Loki (or a good recap of both seasons) + Multiverse of Madness. Day 2 — Deadpool & Wolverine + Thunderbolts* + Fantastic Four: First Steps. Add No Way Home and WandaVision if you have another evening.</div>
+</div></section>
+
+<section class="section" id="quiz"><div class="wrap">
+ <div class="sectionHead"><div><div class="kicker">08 / Final readiness check</div><h2>Are you Doomsday-ready?</h2><p class="lead">Six quick questions. See whether the key story pieces have stuck.</p></div><div class="sectionNo">08</div></div>
+ <div class="quiz" id="quizBox"></div><div class="result" id="quizResult" aria-live="polite"></div>
+</div></section>
+
+<section class="section"><div class="wrap">
+ <div class="finalpanel reveal"><div class="eyebrow">THE FINAL BRIEFING</div><h2>Endgame ended an era.<br><span style="color:var(--red)">Doomsday brings worlds together.</span></h2><p>Remember these five anchors: Tony's sacrifice ended the Infinity Saga; Loki holds the branching timelines; incursions threaten entire realities; the New Avengers have emerged; and the Fantastic Four and legacy X-Men bring other universes into the picture.</p><p><b>Doctor Doom is Victor von Doom, not a confirmed Tony Stark variant.</b> Marvel's official synopsis confirms heroes from three distinct universes face an existential threat — the rest is for the film to reveal.</p><a class="btn primary" href="#top">↑ BACK TO THE BEGINNING</a></div>
+</div></section>
+</main>
+<footer><div class="wrap footercols"><div><b>THE MCU STORY FILE</b><br><span>Fan-made educational guide · Not affiliated with Marvel Studios or Disney.</span></div><div><b>Official reference links</b><br><a href="https://movies.disney.com/avengers-doomsday" target="_blank" rel="noopener">Disney — Avengers: Doomsday</a> · <a href="https://thewaltdisneycompany.com/news/russo-brothers-avengers-endgame-doomsday/" target="_blank" rel="noopener">Disney — Doomsday crossover comments</a> · <a href="https://www.sonypictures.com/movies/spidermanbrandnewday" target="_blank" rel="noopener">Sony — Spider-Man: Brand New Day</a></div></div><div class="wrap smallnote" style="margin-top:18px">Story summaries are paraphrased. Doomsday plot details not officially revealed are intentionally labelled as unknown. Release dates and announced cast can change; verify with official studio listings.</div></footer>
+<button class="backtop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+<script>
+const stars=document.getElementById('stars');
+for(let i=0;i<90;i++){const s=document.createElement('i');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*4)+'s';s.style.opacity=(.15+Math.random()*.55);stars.appendChild(s)}
+const progress=document.getElementById('progress');
+window.addEventListener('scroll',()=>{const h=document.documentElement;progress.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'});
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('navlinks').classList.toggle('open'));
+document.querySelectorAll('#navlinks a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navlinks').classList.remove('open')));
+document.querySelectorAll('.phasebtn').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.phasebtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+ const phase=btn.dataset.phase;let n=0;
+ document.querySelectorAll('#timelineList .event').forEach(e=>{const show=phase==='all'||e.dataset.phase===phase;e.style.display=show?'grid':'none';if(show)n++});
+ document.getElementById('countLabel').textContent=`Showing ${n} story entries`;
+ document.getElementById('timelineSearch').value='';
+}));
+document.getElementById('timelineSearch').addEventListener('input',e=>{
+ const q=e.target.value.toLowerCase();let n=0;
+ document.querySelectorAll('#timelineList .event').forEach(el=>{const show=el.innerText.toLowerCase().includes(q)||el.dataset.search.includes(q);el.style.display=show?'grid':'none';if(show)n++});
+ document.getElementById('countLabel').textContent=`${n} matching entries`;
+ document.querySelectorAll('.phasebtn').forEach(b=>b.classList.toggle('active',b.dataset.phase==='all'));
+});
+document.getElementById('azSearch').addEventListener('input',e=>{
+ const q=e.target.value.toLowerCase();document.querySelectorAll('.azitem').forEach(el=>el.style.display=el.innerText.toLowerCase().includes(q)?'block':'none');
+});
+const checks=[...document.querySelectorAll('#watchlist input')];
+const saved=JSON.parse(localStorage.getItem('mcu-watch-progress')||'[]');
+checks.forEach((c,i)=>{c.checked=!!saved[i];c.addEventListener('change',updateWatch)});
+function updateWatch(){const a=checks.map(c=>c.checked);localStorage.setItem('mcu-watch-progress',JSON.stringify(a));const n=a.filter(Boolean).length;document.getElementById('watchProgressText').textContent=`${n} of ${checks.length} completed`;document.getElementById('watchProgress').style.width=(n/checks.length*100)+'%'}
+updateWatch();
+const questions=[
+ {q:'Who becomes Captain America after Steve Rogers?',a:['Bucky Barnes','Sam Wilson','John Walker'],c:1,why:'Sam accepts Steve’s shield and becomes Captain America.'},
+ {q:'Who holds the branching timelines together at the end of Loki?',a:['Loki','Kang','Doctor Strange'],c:0,why:'Loki takes responsibility for sustaining the branching timelines.'},
+ {q:'What is an incursion?',a:['A time loop','Two universes colliding','A new Infinity Stone'],c:1,why:'An incursion is a collision between universes that can destroy them.'},
+ {q:'Who is Doctor Doom’s traditional rival?',a:['Thor','Reed Richards','Magneto'],c:1,why:'Reed Richards is Mr. Fantastic, leader of the Fantastic Four.'},
+ {q:'Which film establishes the New Avengers team?',a:['Eternals','Thunderbolts*','The Marvels'],c:1,why:'The Thunderbolts team becomes publicly known as the New Avengers.'},
+ {q:'Who is Robert Downey Jr. playing in Doomsday?',a:['Tony Stark','Kang','Victor von Doom'],c:2,why:'Marvel announced RDJ in a new role as Victor von Doom.'}
+];
+const qbox=document.getElementById('quizBox');let score=0,answered=0;
+questions.forEach((q,i)=>{const box=document.createElement('div');box.className='question';box.innerHTML=`<h3>${i+1}. ${q.q}</h3>`;q.a.forEach((ans,j)=>{const b=document.createElement('button');b.className='answer';b.textContent=ans;b.addEventListener('click',()=>{if(box.dataset.done)return;box.dataset.done='1';answered++;if(j===q.c){score++;b.classList.add('correct')}else{b.classList.add('wrong');box.querySelectorAll('.answer')[q.c].classList.add('correct')}const note=document.createElement('p');note.className='smallnote';note.textContent=q.why;box.appendChild(note);if(answered===questions.length)document.getElementById('quizResult').textContent=`Your MCU readiness score: ${score} / ${questions.length}`});box.appendChild(b)});qbox.appendChild(box)});
+</script>
+</body></html>
