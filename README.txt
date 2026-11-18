@@ -1,13 +1,13 @@
 MARVEL: THE ROAD TO AVENGERS — DOOMSDAY
 
-Updated footer credit:
-Created & curated by Niranjan | Instagram: @niranjan__.r
-Guide design/layout/original written compilation © 2026 Niranjan. Marvel characters, film titles, logos and promotional stills remain the property of Marvel Studios / Disney and their respective rights holders. No ownership is claimed. Unofficial fan-made project; not affiliated with or endorsed by Marvel/Disney/Sony.
+Updated page changes
+- Added “Created & curated by Niranjan · @niranjan__.r” directly below the main title.
+- Added a cinematic creator-credit treatment with a clickable Instagram link.
+- Added referrerpolicy="no-referrer" to the six Disney gallery image elements to reduce the chance of third-party hotlink blocking.
+- Removed the external Disney image from the hero CSS background so the hero artwork area no longer depends on that image request.
 
-WHY DISNEY IMAGES MAY NOT LOAD
-The page currently embeds images directly from lumiere-a.akamaihd.net. The URLs work when opened directly, but Disney/Akamai may restrict third-party hotlinking based on the referring website, or the mobile browser/network may block those requests. This is not a GitHub Pages deployment failure.
+IMPORTANT IMAGE NOTE
+The gallery still requests the six promotional stills from Disney’s image CDN. The no-referrer change may resolve a referrer-based block, but it cannot guarantee image delivery if Disney blocks third-party embedding or the network blocks the CDN. The reliable option is to use image files that you are authorized to host in your own GitHub repository under /images, then point the image src values to those local files. Credit alone does not grant permission to redistribute Disney promotional images.
 
-RELIABLE FIX
-Download the six official stills from Disney's official gallery and store them in your GitHub repository under an /images folder. Then update each image src to images/<filename>.jpg. This serves the images from the same GitHub Pages origin as index.html and avoids third-party hotlink restrictions. Make sure you have permission to redistribute the images; crediting Disney does not itself grant a licence.
-
-Deploy: replace the repository's existing index.html with this updated index.html and commit the change.
+DEPLOY
+Replace the repository’s root index.html with this updated index.html and commit the change. GitHub Pages will redeploy automatically.
